@@ -1,0 +1,642 @@
+/* src/index.css */
+:root {
+  /* Dark Mode Defaults */
+  --bg-color: #1a1a1a;
+  --text-color: #f0f0f0;
+  --container-bg: #2a2a2a;
+  --border-color: #444;
+  --input-bg: #333;
+  --input-border: #555;
+  --button-bg: #1a1a1a;
+  --button-border: #646cff;
+  --button-hover-border: #646cff;
+  --button-text: #f0f0f0;
+  --host-button-bg: #4CAF50;
+  --host-button-hover-bg: #45a049;
+  --kick-button-bg: #f44336;
+  --kick-button-hover-bg: #da190b;
+  --assign-host-button-bg: #007bff; /* Blue for assign host */
+  --assign-host-button-hover-bg: #0056b3;
+  --player-cop-bg: #e0e0e0;
+  --player-cop-text: #333;
+  --player-cop-border: #ccc;
+  --player-thief-bg: #333;
+  --player-thief-text: #e0e0e0;
+  --player-thief-border: #555;
+  --selected-border-color: #4CAF50; /* Green for selection */
+  --error-color: #f44336;
+  --highlight-border: #646cff;
+  --highlight-shadow: rgba(100, 108, 255, 0.5);
+  --alert-bg-color: #f44336; /* Red for error alert */
+  --alert-text-color: white;
+
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Light Mode Overrides */
+.light-mode {
+  --bg-color: #f0f2f5;
+  --text-color: #333;
+  --container-bg: #ffffff;
+  --border-color: #ddd;
+  --input-bg: #f5f5f5;
+  --input-border: #ccc;
+  --button-bg: #e0e0e0;
+  --button-border: #646cff;
+  --button-hover-border: #646cff;
+  --button-text: #333;
+  --host-button-bg: #4CAF50;
+  --host-button-hover-bg: #45a049;
+  --kick-button-bg: #f44336;
+  --kick-button-hover-bg: #da190b;
+  --assign-host-button-bg: #007bff;
+  --assign-host-button-hover-bg: #0056b3;
+  --player-cop-bg: #ffffff; /* White background */
+  --player-cop-text: #333; /* Black text */
+  --player-cop-border: #ccc;
+  --player-thief-bg: #333; /* Black background */
+  --player-thief-text: #e0e0e0; /* White text */
+  --player-thief-border: #555;
+  --selected-border-color: #4CAF50;
+  --error-color: #f44336;
+  --highlight-border: #646cff;
+  --highlight-shadow: rgba(100, 108, 255, 0.5);
+  --alert-bg-color: #f44336;
+  --alert-text-color: white;
+}
+
+html {
+  overflow: auto;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  place-items: center;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+html::-webkit-scrollbar, body::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+#root {
+  height: 100vh; /* Ensure the root div also takes full height */
+  width: 100vw;
+  text-align: center;
+}
+
+/*
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+*/
+
+h1, h2, h3 {
+  color: var(--text-color);
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid var(--button-border);
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: var(--button-bg);
+  cursor: pointer;
+  transition: border-color 0.25s, background-color 0.25s, color 0.25s;
+  color: var(--button-text);
+}
+button:hover {
+  border-color: var(--button-hover-border);
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+input, select {
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-color);
+  padding: 0.5em 0.8em;
+  border-radius: 4px;
+  margin-bottom: 1em;
+  font-size: 1em;
+}
+
+.container {
+  background-color: var(--container-bg);
+  border-radius: 10px;
+  padding: 2em;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  max-width: 600px; /* This is for JoinRoomForm */
+  margin: 5% auto 0;
+  flex-grow: 1;
+  max-height: 90vh; /* 90% of viewport height */
+  /* Removed overflow-y: auto here to prevent main container scrollbar */
+}
+
+.form-group {
+  margin-bottom: 1em;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5em;
+  color: var(--text-color);
+}
+
+.form-group input {
+    width: calc(100% - 1.6em); /* Ensure inputs fill their flex container */
+}
+
+.form-group select {
+  width: 100%; /* Account for padding */
+}
+
+/* Join Room Specific Styles */
+.join-form h1 {
+  margin-bottom: 1em; /* Space below main title */
+}
+
+.input-row {
+  display: flex;
+  gap: 1em; /* Space between name and pin inputs */
+}
+
+.input-row .form-group {
+  flex: 1; /* Default flex behavior */
+}
+
+.input-row .form-group:first-child {
+  flex: 2; /* Name input takes 2 parts */
+}
+
+.input-row .form-group:last-child {
+  flex: 1; /* PIN input takes 1 part */
+}
+
+.input-row input {
+  width: calc(100% - 1.6em); /* Ensure inputs fill their flex container */
+}
+
+/* Responsive for Join Form */
+@media (max-width: 800px) {
+  .input-row {
+    flex-direction: column; /* Stack inputs vertically */
+  }
+  .input-row .form-group:first-child,
+  .input-row .form-group:last-child {
+    flex: none; /* Remove flex sizing */
+  }
+  .container {
+    max-height: none; /* 90% of viewport height */
+    /* Removed overflow-y: auto here to prevent main container scrollbar */
+  }
+}
+
+
+/* Room Specific Styles */
+.room-container {
+  /* This is the container for the Room component, it's also a .container */
+  display: flex;
+  flex-direction: column;
+  gap: 1.5em;
+  max-width: 80%; /* Allow room container to expand for grid */
+  padding: 2em;
+  background-color: var(--container-bg);
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  /* max-height and overflow-y are handled by the .container class above */
+}
+
+/* Header */
+.room-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5em;
+  padding-bottom: 1em;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.room-header h1 {
+  margin: 0;
+  font-size: 1.2em; /* Adjusted font size */
+  flex-grow: 0;
+  text-align: left;
+  display: flex; /* For aligning text and button */
+  align-items: center;
+  gap: 0.3em; /* Space between room code and quit button */
+}
+
+.room-header .game-title {
+  font-size: 2em; /* Adjusted font size to 2em */
+  font-weight: bold;
+  flex-grow: 1;
+  text-align: center;
+  color: var(--highlight-border); /* Use highlight color for game title */
+}
+
+.room-header .room-status {
+  margin: 0;
+  font-size: 1.2em; /* Adjusted font size */
+  color: var(--text-color);
+  flex-grow: 0;
+  text-align: right;
+}
+
+.quit-room-button {
+  background-color: #f44336; /* Changed to red */
+  border-color: #f44336; /* Changed to red */
+  color: white;
+  padding: 0.4em 0.8em;
+  font-size: 0.8em;
+}
+.quit-room-button:hover {
+  background-color: #da190b; /* Darker red on hover */
+  border-color: #da190b;
+}
+
+.refresh-button {
+  background-color: #007bff; /* Changed to red */
+  border-color: #007bff; /* Changed to red */
+  color: white;
+  padding: 0.4em 0.8em;
+  font-size: 0.8em;
+}
+.refresh-button:hover {
+  background-color: #0056b3; /* Darker red on hover */
+  border-color: #0056b3;
+}
+
+
+/* Grid Layout for main content */
+.room-content-grid {
+  display: grid;
+  gap: 2em;
+  align-items: start; /* Align items to the top */
+}
+
+.room-content-grid.player-layout {
+  grid-template-columns: 2fr 1fr; /* Player list (2 parts), My Settings (1 part) */
+}
+.room-content-grid.host-layout {
+  grid-template-columns: 2fr 1fr 1fr; /* Player list, My Settings, Host Settings */
+}
+
+/* Vertical bars between columns */
+.my-settings-section {
+  border-left: 1px solid var(--border-color);
+  padding-left: 2em; /* Add padding to account for border */
+}
+.host-settings-section {
+  border-left: 1px solid var(--border-color);
+  padding-left: 2em; /* Add padding to account for border */
+}
+
+.thirty {
+  width:30%;
+}
+
+/* Responsive layout for smaller screens */
+@media (max-width: 800px) {
+  .room-content-grid.player-layout,
+  .room-content-grid.host-layout {
+    grid-template-columns: 1fr; /* Single column */
+  }
+  .player-list-section,
+  .my-settings-section,
+  .host-settings-section {
+    grid-column: 1; /* All sections in the first column */
+  }
+
+  /* Remove vertical bars on small screens */
+  .my-settings-section,
+  .host-settings-section {
+    border-left: none;
+    padding-left: 0;
+    padding-top: 1.5em; /* Add back top padding for separation */
+    border-top: 1px solid var(--border-color); /* Re-add horizontal bar */
+  }
+
+  .room-header {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5em;
+  }
+  /* Keep room code and quit button on same line */
+  .room-header h1 {
+    flex-direction: row; /* Keep it row */
+    justify-content: center; /* Center content */
+    align-items: center; /* Align items vertically */
+    gap: 1em; /* Keep gap */
+  }
+  .room-header .game-title,
+  .room-header .room-status {
+    text-align: center;
+  }
+
+  .thirty {
+    width:50%;
+  }
+}
+
+.player-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline; /* Align text baselines */
+  margin-bottom: 1em;
+}
+
+.player-list-header h2 {
+  margin: 0;
+  font-size: 1.2em; /* Adjusted font size */
+}
+
+.player-count-display {
+  margin: 0;
+  font-size: 1.2em; /* Adjusted font size */
+  font-weight: bold;
+  color: var(--text-color);
+}
+
+.player-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  max-height: 50vh; /* Changed to 50vh */
+  overflow-y: auto; /* Enable vertical scrolling */
+  padding-right: 10px; /* Space for scrollbar */
+}
+
+/* Custom Scrollbar Styles (for Webkit browsers) */
+.player-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.player-list::-webkit-scrollbar-track {
+  background: var(--input-bg); /* Track color */
+  border-radius: 10px;
+}
+
+.player-list::-webkit-scrollbar-thumb {
+  background: var(--border-color); /* Thumb color */
+  border-radius: 10px;
+}
+
+.player-list::-webkit-scrollbar-thumb:hover {
+  background: var(--highlight-border); /* Thumb hover color */
+}
+
+
+.player-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8em 1.2em;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s, transform 0.2s ease-out, box-shadow 0.2s ease-out; /* Added transform and box-shadow for animation */
+}
+
+.player-item:not(.me):hover { /* Apply hover effect to non-current player items */
+  transform: translateY(-2px); /* Slight lift */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+}
+
+.player-item.cop-style {
+  background-color: var(--player-cop-bg);
+  color: var(--player-cop-text);
+  border: 1px solid var(--player-cop-border);
+}
+
+.player-item.thief-style {
+  background-color: var(--player-thief-bg);
+  color: var(--player-thief-text);
+  border: 1px solid var(--player-thief-border);
+}
+
+.player-item.me {
+  border: 2px solid var(--highlight-border); /* Highlight for current player */
+  box-shadow: 0 0 8px var(--highlight-shadow);
+}
+
+.player-name {
+  flex-grow: 1;
+  text-align: left;
+}
+
+.player-details {
+  display: flex;
+  gap: 0.5em; /* Reduced gap for buttons */
+  align-items: center;
+}
+
+.host-crown {
+  margin-right: 0.5em;
+  font-size: 1.2em;
+}
+
+.my-controls, .host-controls {
+  display: flex;
+  flex-direction: column; /* Stack elements vertically within controls */
+  gap: 1em;
+  /* Removed border-top here */
+}
+
+.my-controls h3, .host-controls h3 {
+  margin-top: 0;
+  margin-bottom: 0.5em;
+}
+
+.host-controls button {
+  background-color: var(--host-button-bg);
+  border-color: var(--host-button-bg);
+  color: white;
+}
+
+.host-controls button:hover {
+  background-color: var(--host-button-hover-bg);
+  border-color: var(--host-button-hover-bg);
+}
+
+.kick-button {
+  background-color: var(--kick-button-bg);
+  border-color: var(--kick-button-bg);
+  color: white;
+  padding: 0.4em 0.8em; /* Smaller buttons for list items */
+  font-size: 0.8em;
+}
+
+.kick-button:hover {
+  background-color: var(--kick-button-hover-bg);
+  border-color: var(--kick-button-hover-bg);
+}
+
+.assign-host-button {
+  background-color: var(--assign-host-button-bg);
+  border-color: var(--assign-host-button-bg);
+  color: white;
+  padding: 0.4em 0.8em; /* Smaller buttons for list items */
+  font-size: 0.8em;
+}
+
+.assign-host-button:hover {
+  background-color: var(--assign-host-button-hover-bg);
+  border-color: var(--assign-host-button-hover-bg);
+}
+
+.host-game-actions {
+  display: flex;
+  gap: 1em;
+  justify-content: space-between; /* Distribute buttons */
+}
+.host-game-actions button {
+  flex: 1; /* Make buttons take equal width */
+}
+
+
+.room-status {
+  margin-top: 1em;
+  font-size: 0.9em;
+  color: var(--text-color);
+}
+
+.error-message {
+  color: var(--error-color);
+  margin-top: 1em;
+  font-weight: bold;
+}
+
+.role-selection-buttons {
+  display: flex;
+  gap: 0.5em;
+  margin-bottom: 1em;
+}
+
+.role-selection-buttons button {
+  flex: 1;
+  padding: 0.8em 1.2em;
+  font-weight: bold;
+  border-width: 2px; /* Thicker border for selection */
+}
+
+.role-selection-buttons .cop-button {
+  background-color: var(--player-cop-bg);
+  color: var(--player-cop-text);
+  border-color: var(--player-cop-border);
+}
+.role-selection-buttons .cop-button.selected {
+  border-color: var(--selected-border-color);
+}
+
+.role-selection-buttons .thief-button {
+  background-color: var(--player-thief-bg);
+  color: var(--player-thief-text);
+  border-color: var(--player-thief-border);
+}
+.role-selection-buttons .thief-button.selected {
+  border-color: var(--selected-border-color);
+}
+
+/* Footer Styles */
+.app-footer {
+  margin-top: auto; /* Pushes footer to the bottom */
+  padding-top: 2em;
+  font-size: 0.8em;
+  color: var(--text-color);
+  opacity: 0.7;
+}
+
+/* Day/Night Toggle */
+.theme-toggle {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+  color: var(--text-color);
+  transition: color 0.3s;
+}
+.theme-toggle:hover {
+  color: var(--highlight-border);
+}
+
+/* Custom Alert Styling */
+.custom-alert {
+  background-color: var(--alert-bg-color);
+  color: var(--alert-text-color);
+  padding: 1em;
+  border-radius: 8px;
+  margin-bottom: 1.5em;
+  font-weight: bold;
+  text-align: center;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.Cop {
+  margin: 0;
+  padding: 1px 2px;
+  border-radius: 4px;
+  border: 1px solid black;
+  background-color: #fff;
+  color: black;
+}
+
+.Thief {
+  margin: 0;
+  padding: 1px 2px;
+  border-radius: 4px;
+  border: 1px solid #fff;
+  background-color: black;
+  color: #fff;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
