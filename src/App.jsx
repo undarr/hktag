@@ -148,8 +148,11 @@ function App() {
         await channelgameRef.current.attach();
         rootobj.current = await channelgameRef.current.objects.getRoot();
         //rootobj.current.subscribe(({ update }) => {});
-        const spaces = new Spaces(ablyRef.current);
+        const spaces = new Spaces(ablyRef.current, {offlineTimeout: 5000});
         space.current = await spaces.get(`hsroom:${roomCode}`);
+        
+        const spaceState = await space.current.getState();
+        console.log(spaceState);
         const allmembers = await space.current.members.getOthers();
         const otherMembers = allmembers.filter(d => d.isConnected !== false);
         const cplayers = toPdict(otherMembers);
@@ -158,11 +161,9 @@ function App() {
           disconnectably();
           return;
         }
-        console.log()
         playermapRef.current = await rootobj.current.get("players");
         gamemapRef.current = await rootobj.current.get("game");
-        const gamestate = await gamemapRef.current.get('sstate');
-        console.log(playermapRef.current, gamemapRef.current);
+        //console.log(playermapRef.current, gamemapRef.current);
         if (!playermapRef.current) {
           console.log('create');
           playermapRef.current = await channelgameRef.current.objects.createMap();
@@ -172,6 +173,7 @@ function App() {
           gamemapRef.current = await channelgameRef.current.objects.createMap();
           rootobj.current.set("game",gamemapRef.current);
         }
+        const gamestate = await gamemapRef.current.get('sstate');
         if (Object.keys(cplayers).length === 0) {
           console.log("No players, clear object cache");
           for (const key of playermapRef.current.keys()) {
@@ -184,6 +186,7 @@ function App() {
           await gamemapRef.current.set('sstate', 'pre');
         }
         else {
+
           if (gamestate==='on') {
             console.log("Game started");
             alert('Game in that room has started');

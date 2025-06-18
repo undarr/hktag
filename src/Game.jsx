@@ -14,54 +14,6 @@ function MapEventHandler({ onMapClick }) {
   return null;
 }
 
-function transformNodeDataToEdges(nodeDataDict) {
-  const uniqueEdges = new Set(); // To store unique edge string representations
-  const edgesList = []; // To store the final list of edge arrays
-
-  /**
-   * Helper function to parse a node ID string "lat,lon" into a [lat, lon] array of numbers.
-   * @param {string} nodeIdString - The node ID string (e.g., "22.269959,114.2902007")
-   * @returns {number[]} An array [latitude, longitude]
-   */
-  const parseNodeId = (nodeIdString) => {
-    const parts = nodeIdString.split(',');
-    return [parseFloat(parts[0]), parseFloat(parts[1])];
-  };
-
-  // Iterate over each source node in the dictionary
-  for (const sourceNodeId in nodeDataDict) {
-    if (nodeDataDict.hasOwnProperty(sourceNodeId)) {
-      const sourceCoords = parseNodeId(sourceNodeId);
-      const connectedNodeIds = nodeDataDict[sourceNodeId];
-
-      // Iterate over each connected node for the current source node
-      for (const connectedNodeId of connectedNodeIds) {
-        const connectedCoords = parseNodeId(connectedNodeId);
-
-        // Normalize the edge to prevent duplicates (e.g., A-B and B-A are the same edge)
-        // We'll sort the two coordinate arrays lexicographically based on their string representation
-        const edge = [sourceCoords, connectedCoords].sort((a, b) => {
-          const aStr = JSON.stringify(a);
-          const bStr = JSON.stringify(b);
-          if (aStr < bStr) return -1;
-          if (aStr > bStr) return 1;
-          return 0;
-        });
-
-        const edgeString = JSON.stringify(edge); // Convert the normalized edge array to a string
-
-        // If this edge hasn't been added yet, add it to the set and the list
-        if (!uniqueEdges.has(edgeString)) {
-          uniqueEdges.add(edgeString);
-          edgesList.push(edge);
-        }
-      }
-    }
-  }
-
-  return edgesList;
-}
-
 /**
  * Performs a Breadth-First Search (BFS) starting from an edge, finding all edges
  * reachable within a given number of steps from either node of the starting edge.
@@ -246,6 +198,51 @@ function Game({starttime, roomCode, pname, allpdata, changemyedge, caughtlist}) 
     }
     yo();
   }, [strmyedge]);
+
+  const playerstat = (playerList, caughtList) => {
+    const cops = [];
+    const thieves = [];
+
+    // Categorize players and determine caught status for thieves
+    Object.entries(playerList).forEach(([playerName, playerData]) => {
+      const role = playerData[2]; // Role is at index 2
+      if (role === "Cop") {
+        cops.push({ name: playerName, role: "Cop" });
+      } else if (role === "Thief") {
+        const isCaught = caughtList[playerName][0] !== false;
+        thieves.push({ name: playerName, role: "Thief", isCaught: isCaught });
+      }
+    });
+
+    cops.sort((a, b) => a.name.localeCompare(b.name));
+    thieves.sort((a, b) => {
+      if (a.isCaught !== b.isCaught) {
+        return a.isCaught ? 1 : -1; // If a is caught and b is not, a comes after b
+      }
+      return a.name.localeCompare(b.name);
+    });
+
+    const totalCops = cops.length;
+    const totalThieves = thieves.length;
+    const caughtThievesCount = thieves.filter(t => t.isCaught).length;
+    const uncaughtThievesCount = totalThieves - caughtThievesCount;
+    return (
+      <>
+        <b>Cops ({totalCops}/{totalCops}):</b><br />
+        {cops.map((cop, index) => (
+          <span key={cop.name}>{cop.name}<br /></span>
+        ))}
+        <br /> {/* Add a line break for separation */}
+        <b>Thieves ({uncaughtThievesCount}/{totalThieves}):</b><br />
+        {thieves.map((thief, index) => (
+          <span key={thief.name}>
+            {thief.isCaught ? <del>{thief.name}</del> : thief.name}
+            <br />
+          </span>
+        ))}
+      </>
+    );
+  };
 
   function summarize(starttime,d) {
   const summaryElements = Object.entries(d)
@@ -605,8 +602,8 @@ function Game({starttime, roomCode, pname, allpdata, changemyedge, caughtlist}) 
           Room: {roomCode}<br/>
           Heading: {headingdir}<br/>
           {walktimestate}<br/>
-          {JSON.stringify(allpdata)}<br/>
-          {JSON.stringify(caughtlist)}
+          <br/>
+          {playerstat(allpdata,caughtlist)}
         </div>
       </MapContainer>
       {startoverlay && <div style={{
