@@ -151,12 +151,14 @@ function getReachableEdgesFromEdge(graph, startEdge, maxSteps = 8) {
     return resultEdgesList;
 }
 
-function Game({starttime, roomCode, pname, allpdata, changemyedge}) {
+function Game({starttime, roomCode, pname, allpdata, changemyedge, caughtlist}) {
   const myedge = [allpdata[pname][4]];
   const gamestarted = useRef(false);
-  const [showoverlay, setshowoverlay] = useState(true);
+  const [startoverlay, setstartoverlay] = useState(true);
+  const [endoverlay, setendoverlay] = useState(false);
   const [timeleftuntilstart, settimeleftuntilstart] = useState('/');
   const strmyedge = JSON.stringify([allpdata[pname][4]]);
+  const strcaughtlist = JSON.stringify(caughtlist);
   const myRole = [allpdata[pname][2]]
   const [curedge, setcuredge] = useState([allpdata[pname][4]]);
   //const curedgeref = useRef([[[22.3183395,114.1694384], [22.3175894,114.169594]]]);
@@ -164,9 +166,9 @@ function Game({starttime, roomCode, pname, allpdata, changemyedge}) {
   const adjedgeref = useRef([]);
   const nxtedgeref = useRef([]);
   const directionref = useRef("/");
-  const [headingdir, setheadingdir] = useState("none");
+  const [headingdir, setheadingdir] = useState("/");
   const walkingstate = useRef("rest"); //rest, walk, wait (waiting for server)
-  const [walktimestate, setwalktimestate] = useState("Resting");
+  const [walktimestate, setwalktimestate] = useState("Resting...");
   const walktime = useRef(-1);
   const walktimeInterval = useRef(null);
   const [loadedEdges, setLoadedEdges] = useState([]);
@@ -175,7 +177,7 @@ function Game({starttime, roomCode, pname, allpdata, changemyedge}) {
   const [clickedLocation, setClickedLocation] = useState(null); // Stores the last clicked LatLng
   
   function plotbfs() {
-    if (myedge[0] && myedge[0]!=="none") {
+    if (myedge[0] && myedge[0]!=="/") {
       const bSet = new Set(myedge.map(JSON.stringify));
       adjedgeref.current=getReachableEdgesFromEdge(loadedregion.current,myedge[0],1).filter(arr => !bSet.has(JSON.stringify(arr)));
       const bbSet = new Set(adjedgeref.current.map(JSON.stringify));
@@ -189,7 +191,7 @@ function Game({starttime, roomCode, pname, allpdata, changemyedge}) {
   function walk() {
     walkingstate.current="wait";
     setwalktimestate("Arriving...");
-    changemyedge(nxtedgeref.current);
+    changemyedge(allpdata,nxtedgeref.current);
   }
 
   useEffect(() => {
@@ -209,7 +211,7 @@ function Game({starttime, roomCode, pname, allpdata, changemyedge}) {
           else {
             if (starttime!==0 && Date.now()>starttime) {
               gamestarted.current=true;
-              setshowoverlay(false);
+              setstartoverlay(false);
             }
             else {settimeleftuntilstart((Math.ceil((starttime-Date.now())/100))/10);}
           }
@@ -238,11 +240,50 @@ function Game({starttime, roomCode, pname, allpdata, changemyedge}) {
         adjedgeref.current=[];
         setadjEdges([]);
         setLoadedEdges([]);
+        setwalktimestate("Spectating...");
       }
       console.log()
     }
     yo();
   }, [strmyedge]);
+
+  function summarize(starttime,d) {
+  const summaryElements = Object.entries(d)
+    .map(([thief, [catcher, caughtTime]]) => {
+      const durationMs = caughtTime - starttime;
+      const totalSeconds = Math.floor(durationMs / 1000);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      let timeParts = [];
+      if (hours > 0) timeParts.push(`${hours} hour${hours !== 1 ? 's' : ''}`);
+      if (minutes > 0 || hours > 0) timeParts.push(`${minutes} minute${minutes !== 1 ? 's' : ''}`);
+      timeParts.push(`${seconds} second${seconds !== 1 ? 's' : ''}`);
+
+      return {
+        caughtTime: caughtTime,
+        message1: thief,
+        message2: catcher,
+        message3: timeParts.join(', ')
+      };
+    })
+    .sort((a, b) => a.caughtTime - b.caughtTime)
+    .map((item, index) => (
+      <span key={index}><b>{item.message1}</b> was caught by <b>{item.message2}</b> after {item.message3}</span>
+    ));
+
+  return (
+    <>
+      {summaryElements}
+    </>
+  );
+};
+
+  useEffect(() => {
+    const caughtall = !Object.values(caughtlist).some(value => value[0] === false);
+    if (caughtall) {setendoverlay(true); setwalktimestate("Spectating...");}
+  }, [strcaughtlist]);
 
   useEffect(() => {setadjEdges(adjedgeref.current)}, [adjedgeref.current]);
   const center_lat = 22.3183395;
@@ -340,7 +381,7 @@ function Game({starttime, roomCode, pname, allpdata, changemyedge}) {
 
   function getnextedge(curedge, adjedges, direction) {
     //console.log(curedge,adjedges,direction);
-    if (direction=="/" || !curedge) {nxtedgeref.current="none"; return;}
+    if (direction=="/" || !curedge) {nxtedgeref.current="/"; return;}
     const midpt = calculateMidpoint(curedge);
     const startnode = curedge.sort((a, b) => (sortbybearing(midpt,a,direction) - (sortbybearing(midpt,b,direction))))[0]
     const nonstartnode = curedge.sort((a, b) => (sortbybearing(midpt,a,direction) - (sortbybearing(midpt,b,direction))))[1]
@@ -377,14 +418,14 @@ function Game({starttime, roomCode, pname, allpdata, changemyedge}) {
         nxtedgeref.current=[startnode,sortednodes2[0]].sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
       }
       else {
-        nxtedgeref.current="none";
+        nxtedgeref.current="/";
         directionref.current="/";
       }
   }
 
   // Function to fetch and process regional data
   async function fetchRegionalData(sedge) {
-    if (sedge==="none") {return;}
+    if (sedge==="/") {return;}
     const getRegionFileName = (node) => {
       const [lat, lon] = node;
       const latPrefix = Math.floor(lat);
@@ -457,7 +498,7 @@ function Game({starttime, roomCode, pname, allpdata, changemyedge}) {
   }, []);
 
   function handleEdgeClick(edge) {
-    if (edge==="none") {return;}
+    if (edge==="/") {return;}
     if (walkingstate.current!=="wait") {
       nxtedgeref.current=edge;
       walktime.current=calculateTraveltime(myedge[0],edge);;
@@ -560,19 +601,29 @@ function Game({starttime, roomCode, pname, allpdata, changemyedge}) {
           position: 'absolute', top: '10px', right: '10px', zIndex: 1000, color: '#000', textAlign: 'left',
           background: 'rgba(255, 255, 255, 0.8)', padding: '5px 10px', borderRadius: '5px', boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
         }}>
-          <b>{pname}</b><br/>
+          <b>{pname}</b> ({myRole})<br/>
           Room: {roomCode}<br/>
-          Role: {myRole}<br/>
           Heading: {headingdir}<br/>
-          {walktimestate}
+          {walktimestate}<br/>
+          {JSON.stringify(allpdata)}<br/>
+          {JSON.stringify(caughtlist)}
         </div>
       </MapContainer>
-      {showoverlay && <div style={{
+      {startoverlay && <div style={{
           position: 'absolute', top: '0px', right: '0px', width: '100%', height: '100%', zIndex: 1001, color: '#000', textAlign: 'center',
-          background: 'rgba(255, 255, 255, 0.8)', display: 'flex', 'justify-content': 'center', 'align-items': 'center'
+          background: 'rgba(255, 255, 255, 0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center'
         }}>
           Game will start at {new Date(starttime).toLocaleTimeString('en-US', { hour12: false })}<br></br>
           ({timeleftuntilstart} more seconds)
+      </div>}
+      {endoverlay && <div style={{
+          position: 'absolute', top: '0px', right: '0px', width: '100%', height: '100%', zIndex: 1001, color: '#000', textAlign: 'center',
+          background: 'rgba(255, 255, 255, 0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'
+        }}>
+          Game over, all theives caught!<br></br>
+          <br></br>
+          <b>Summary:</b>
+          {summarize(starttime,caughtlist)}
       </div>}
     </div>
   );
